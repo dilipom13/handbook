@@ -8,7 +8,7 @@ To configure an HTTP proxy for WP-CLI, you can use the community package [`ekamr
 
 ## Using the HTTP Proxy Package (Recommended)
 
-The [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) community package provides complete proxy support for both WP-CLI's internal HTTP requests (e.g. package management, updates) and WordPress core HTTP requests.
+The [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) community package configures the proxy for both WordPress core HTTP requests and WP-CLI's own HTTP requests made through `WP_CLI\Utils\http_request()`, such as `wp core verify-checksums`.
 
 > Note: The package requires WP-CLI 2.12.0 or newer.
 
@@ -17,7 +17,7 @@ The [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http
 Install the package using the `wp package install` command:
 
 ```bash
-wp package install ekamran/wp-cli-http-proxy-command
+wp package install ekamran/wp-cli-http-proxy-command:@stable
 ```
 
 ### Configuration
@@ -183,7 +183,7 @@ PHP
 
 This `extra-php` approach only applies to the generated `wp-config.php` at install time. It does not configure WP-CLI's own HTTP requests and is not suitable for existing installs unless you add the constants manually.
 
-> Note: This manual approach sets the constants used by WordPress core HTTP requests after WordPress loads, but does not automatically route WP-CLI's pre-bootstrap or standalone HTTP requests (such as `wp package` commands). For complete proxy coverage across all WP-CLI operations, use the [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) package.
+> Note: This manual approach only defines the constants that WordPress core uses for its own HTTP requests. WP-CLI's own HTTP requests do not use them. To route those through the proxy as well, use the [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) package. Neither approach covers `wp package` commands (see Limitations above).
 
 ## Related Documentation
 
