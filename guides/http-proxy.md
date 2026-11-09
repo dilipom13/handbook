@@ -2,9 +2,9 @@
 
 When running WP-CLI in restricted network environments or behind corporate firewalls, you may need to route outbound HTTP/HTTPS requests through an HTTP proxy.
 
-WP-CLI and WordPress core use the Requests HTTP library for performing remote HTTP requests. By default, WP-CLI does not automatically read or trust proxy environment variables (such as `HTTP_PROXY` or `HTTPS_PROXY`).
+WP-CLI and WordPress core use the Requests HTTP library for performing remote HTTP requests. WP-CLI has no HTTP proxy setting of its own, but when PHP's cURL extension sends a request, cURL reads some standard proxy environment variables itself: HTTPS requests go through a proxy set in `https_proxy` or `HTTPS_PROXY`, and hosts listed in `no_proxy` or `NO_PROXY` connect directly.
 
-To configure an HTTP proxy for WP-CLI, you can use the community package [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) (recommended for full WP-CLI and WordPress proxy support), or manually configure WordPress core proxy constants in a bootstrap file.
+To configure an HTTP proxy for WP-CLI, you can use the community package [`ekamran/wp-cli-http-proxy-command`](https://github.com/ekamran/wp-cli-http-proxy-command) (recommended for WordPress core requests and WP-CLI's own HTTP requests), or manually configure WordPress core proxy constants in a bootstrap file.
 
 ## Using the HTTP Proxy Package (Recommended)
 
@@ -18,6 +18,12 @@ Install the package using the `wp package install` command:
 
 ```bash
 wp package install ekamran/wp-cli-http-proxy-command:@stable
+```
+
+If the machine can reach the internet only through the proxy, set `https_proxy` when you run this command and any other `wp package` command (see Limitations below):
+
+```bash
+https_proxy=http://proxy.example.com:8080 wp package install ekamran/wp-cli-http-proxy-command:@stable
 ```
 
 ### Configuration
@@ -78,7 +84,7 @@ When `env: true` is set, the package selects the **first non-empty** environment
 3. `HTTP_PROXY`
 4. `http_proxy`
 
-This differs from libcurl, which can use separate proxies per scheme (for example `http_proxy` for HTTP and `https_proxy` for HTTPS) and honors `NO_PROXY` / `no_proxy` for bypass rules. This package does **not** read `NO_PROXY` or `no_proxy`. If you rely on bypass rules from your environment, map those entries to `bypass-hosts` in your configuration instead.
+This differs from libcurl, which can use separate proxies per scheme (for example `http_proxy` for HTTP and `https_proxy` for HTTPS). The package does not read `NO_PROXY` or `no_proxy`, but cURL still does, so a host listed there skips the proxy configured by this package as well. To keep bypass rules in your WP-CLI configuration, list those hosts in `bypass-hosts`.
 
 ### Diagnostic Commands
 
